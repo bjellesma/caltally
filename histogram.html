@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Caltally - Calendar Histogram</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+    <div class="container">
+        <h1>Calendar Time Distribution</h1>
+        <div class="controls">
+            <select id="timeRange">
+                <option value="day">Daily</option>
+                <option value="week">Weekly</option>
+                <option value="month">Monthly</option>
+            </select>
+            <button id="refresh">Refresh</button>
+        </div>
+        <div class="chart-container">
+            <canvas id="histogramChart"></canvas>
+        </div>
+    </div>
+    <script src="histogram.js"></script>
+</body>
+</html> 

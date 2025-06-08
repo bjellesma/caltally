@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Calendar Time Tracker</title>
+    <link rel="stylesheet" href="popup.css">
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <header class="header">
+            <div class="header-content">
+                <h1>📊 Time Tracker</h1>
+                <p class="subtitle">Analyze your calendar time</p>
+            </div>
+        </header>
+
+        <!-- Auth Section -->
+        <div id="auth-section" class="section">
+            <div class="auth-card">
+                <div class="auth-icon">🔐</div>
+                <h2>Connect Your Calendar</h2>
+                <p>Sign in with Google to analyze your calendar time</p>
+                <button id="sign-in-btn" class="btn btn-primary">
+                    <span class="btn-icon">🚀</span>
+                    Sign In with Google
+                </button>
+            </div>
+        </div>
+
+        <!-- Main App -->
+        <div id="app-section" class="section hidden">
+            <!-- Date Range Selector -->
+            <div class="date-range-card">
+                <h3>📅 Select Time Period</h3>
+                <div class="date-inputs">
+                    <div class="input-group">
+                        <label for="start-date">From:</label>
+                        <input type="date" id="start-date" class="date-input">
+                    </div>
+                    <div class="input-group">
+                        <label for="end-date">To:</label>
+                        <input type="date" id="end-date" class="date-input">
+                    </div>
+                </div>
+                <div class="quick-selectors">
+                    <button class="quick-btn" data-period="this-week">This Week</button>
+                    <button class="quick-btn" data-period="last-week">Last Week</button>
+                    <button class="quick-btn" data-period="this-month">This Month</button>
+                    <button class="quick-btn" data-period="last-month">Last Month</button>
+                </div>
+                <button id="analyze-btn" class="btn btn-primary">
+                    <span class="btn-icon">🔍</span>
+                    Analyze Time
+                </button>
+            </div>
+
+            <!-- Loading State -->
+            <div id="loading" class="loading hidden">
+                <div class="spinner"></div>
+                <p>Analyzing your calendar data...</p>
+            </div>
+
+            <!-- Results Section -->
+            <div id="results-section" class="hidden">
+                <!-- Summary Stats -->
+                <div class="summary-card">
+                    <h3>📈 Time Summary</h3>
+                    <div class="summary-stats">
+                        <div class="stat-item">
+                            <span class="stat-value" id="total-hours">0</span>
+                            <span class="stat-label">Total Hours</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="active-days">0</span>
+                            <span class="stat-label">Active Days</span>
+                        </div>
+                        <div class="stat-item">
+                            <span class="stat-value" id="avg-daily">0</span>
+                            <span class="stat-label">Avg Daily</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Calendar Breakdown -->
+                <div class="breakdown-card">
+                    <h3>🗂️ Calendar Breakdown</h3>
+                    <div id="calendar-breakdown" class="breakdown-list">
+                        <!-- Calendar items will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Time Chart -->
+                <div class="chart-card">
+                    <h3>📊 Visual Breakdown</h3>
+                    <div id="time-chart" class="chart-container">
+                        <!-- Chart will be rendered here -->
+                    </div>
+                </div>
+
+                <!-- Daily Timeline -->
+                <div class="timeline-card">
+                    <h3>📅 Daily Timeline</h3>
+                    <div id="daily-timeline" class="timeline-container">
+                        <!-- Daily breakdown will be inserted here -->
+                    </div>
+                </div>
+
+                <!-- Export Options -->
+                <div class="export-card">
+                    <h3>💾 Export Data</h3>
+                    <div class="export-buttons">
+                        <button id="export-csv" class="btn btn-secondary">
+                            <span class="btn-icon">📄</span>
+                            Export CSV
+                        </button>
+                        <button id="export-json" class="btn btn-secondary">
+                            <span class="btn-icon">📦</span>
+                            Export JSON
+                        </button>
+                        <button id="copy-summary" class="btn btn-secondary">
+                            <span class="btn-icon">📋</span>
+                            Copy Summary
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Settings -->
+            <div class="settings-card">
+                <details>
+                    <summary>⚙️ Settings</summary>
+                    <div class="settings-content">
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="exclude-all-day" checked>
+                                Exclude all-day events
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label>
+                                <input type="checkbox" id="group-by-color" checked>
+                                Group calendars by color
+                            </label>
+                        </div>
+                        <div class="setting-item">
+                            <label for="min-duration">Minimum event duration (minutes):</label>
+                            <input type="number" id="min-duration" value="1" min="1" max="60">
+                        </div>
+                        <div class="setting-item">
+                            <label for="timezone">Timezone:</label>
+                            <select id="timezone">
+                                <option value="America/New_York">Eastern Time</option>
+                                <option value="America/Chicago">Central Time</option>
+                                <option value="America/Denver">Mountain Time</option>
+                                <option value="America/Los_Angeles">Pacific Time</option>
+                                <option value="UTC">UTC</option>
+                            </select>
+                        </div>
+                    </div>
+                </details>
+            </div>
+
+            <!-- Sign Out -->
+            <div class="footer">
+                <button id="sign-out-btn" class="btn btn-text">
+                    <span class="btn-icon">👋</span>
+                    Sign Out
+                </button>
+            </div>
+        </div>
+
+        <!-- Error Display -->
+        <div id="error-section" class="section hidden">
+            <div class="error-card">
+                <div class="error-icon">⚠️</div>
+                <h2>Something went wrong</h2>
+                <p id="error-message">An error occurred while analyzing your calendar.</p>
+                <button id="retry-btn" class="btn btn-primary">Try Again</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="popup.js"></script>
+</body>
+</html>

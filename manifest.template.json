@@ -1,0 +1,36 @@
+{
+    "manifest_version": 3,
+    "name": "Caltally",
+    "version": "1.0",
+    "description": "Analyze time spent across all your Google Calendar categories",
+    
+    "permissions": [
+      "identity",
+      "storage",
+      "contextMenus"
+    ],
+    
+    "host_permissions": [
+      "https://www.googleapis.com/*"
+    ],
+    
+    "oauth2": {
+      "client_id": "{{CLIENT_ID}}",
+      "scopes": [
+        "https://www.googleapis.com/auth/calendar.readonly"
+      ]
+    },
+    
+    "action": {
+      "default_popup": "popup.html",
+      "default_title": "Caltally"
+    },
+    
+    "background": {
+      "service_worker": "background.js"
+    },
+    
+    "content_security_policy": {
+      "extension_pages": "script-src 'self' https://cdn.jsdelivr.net; object-src 'self'"
+    }
+} 
