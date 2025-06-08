@@ -2,7 +2,7 @@ const fs = require('fs');
 const path = require('path');
 
 // Read the config file
-const config = require('./config.js').default;
+const config = require('./config.js');
 
 // Read the template
 const template = fs.readFileSync('manifest.template.json', 'utf8');

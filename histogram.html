@@ -1,23 +1,51 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Caltally - Calendar Histogram</title>
+    <title>Calendar Analysis</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="lib/chart.umd.js"></script>
 </head>
 <body>
     <div class="container">
-        <h1>Calendar Time Distribution</h1>
+        <h1>Calendar Analysis</h1>
         <div class="controls">
-            <select id="timeRange">
-                <option value="day">Daily</option>
-                <option value="week">Weekly</option>
-                <option value="month">Monthly</option>
-            </select>
-            <button id="refresh">Refresh</button>
+            <div class="date-controls">
+                <div class="date-input">
+                    <label for="startDate">Start Date:</label>
+                    <input type="date" id="startDate">
+                </div>
+                <div class="date-input">
+                    <label for="endDate">End Date:</label>
+                    <input type="date" id="endDate">
+                </div>
+            </div>
+            <div class="preset-controls">
+                <select id="timeRange">
+                    <option value="custom">Custom Range</option>
+                    <option value="day">Today</option>
+                    <option value="week">This Week</option>
+                    <option value="month">This Month</option>
+                </select>
+                <button id="refresh">Refresh</button>
+            </div>
         </div>
         <div class="chart-container">
             <canvas id="histogramChart"></canvas>
+        </div>
+        <div id="eventTable" class="event-table-container" style="display: none;">
+            <h2 id="tableTitle"></h2>
+            <table class="event-table">
+                <thead>
+                    <tr>
+                        <th>Event</th>
+                        <th>Date</th>
+                        <th>Time</th>
+                        <th>Duration</th>
+                    </tr>
+                </thead>
+                <tbody id="eventTableBody">
+                </tbody>
+            </table>
         </div>
     </div>
     <script src="histogram.js"></script>

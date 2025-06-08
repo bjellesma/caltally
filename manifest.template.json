@@ -25,12 +25,16 @@
       "default_popup": "popup.html",
       "default_title": "Caltally"
     },
-    
     "background": {
       "service_worker": "background.js"
     },
     
     "content_security_policy": {
-      "extension_pages": "script-src 'self' https://cdn.jsdelivr.net; object-src 'self'"
-    }
+      "extension_pages": "script-src 'self'; object-src 'self'; connect-src 'self' https://www.googleapis.com"
+    },
+    
+    "web_accessible_resources": [{
+      "resources": ["histogram.html", "histogram.js", "styles.css", "lib/*"],
+      "matches": ["<all_urls>"]
+    }]
 } 

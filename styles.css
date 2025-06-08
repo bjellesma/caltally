@@ -5,35 +5,71 @@
 }
 
 .controls {
-    margin-bottom: 20px;
+    margin: 20px 0;
     display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.date-controls {
+    display: flex;
+    gap: 20px;
+    align-items: center;
+}
+
+.date-input {
+    display: flex;
+    align-items: center;
     gap: 10px;
 }
 
-select, button {
-    padding: 8px 16px;
-    border: 1px solid #ccc;
+.date-input label {
+    font-weight: 500;
+    color: #333;
+}
+
+.date-input input[type="date"] {
+    padding: 8px;
+    border: 1px solid #ddd;
     border-radius: 4px;
     font-size: 14px;
 }
 
+.preset-controls {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+select, button {
+    padding: 8px 12px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-size: 14px;
+    background: white;
+}
+
 button {
-    background-color: #4285f4;
+    background: #4285f4;
     color: white;
     border: none;
     cursor: pointer;
+    transition: background-color 0.2s;
 }
 
 button:hover {
-    background-color: #3367d6;
+    background: #3367d6;
 }
 
 .chart-container {
-    background: white;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    height: 600px;
+    position: relative;
+    height: 400px;
+    margin: 20px 0;
+}
+
+.chart-container canvas {
+    width: 100% !important;
+    height: 100% !important;
 }
 
 .histogram-button {
@@ -55,4 +91,40 @@ h1 {
     color: #202124;
     margin-bottom: 20px;
     font-size: 24px;
+}
+
+.event-table-container {
+    margin-top: 20px;
+    padding: 20px;
+    background: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.event-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+
+.event-table th,
+.event-table td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #eee;
+}
+
+.event-table th {
+    background-color: #f5f5f5;
+    font-weight: 600;
+}
+
+.event-table tr:hover {
+    background-color: #f9f9f9;
+}
+
+#tableTitle {
+    margin: 0 0 15px 0;
+    color: #333;
+    font-size: 1.2em;
 } 

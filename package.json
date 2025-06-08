@@ -1,0 +1,18 @@
+{
+  "name": "caltally",
+  "version": "1.0.0",
+  "description": "A Chrome extension that analyzes time spent across all your Google Calendar categories with beautiful visualizations.",
+  "main": "background.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "chart.js": "^4.4.9"
+  }
+}
