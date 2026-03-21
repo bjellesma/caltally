@@ -2,8 +2,11 @@ class CalendarHistogram {
     constructor() {
         this.chart = null;
         this.timeRange = 'custom';
+        this.rawCalendarData = null;
+        this.combinedCategories = [];
         this.initializeEventListeners();
         this.initializeDatePickers();
+        this.initializeCombineControls();
         this.loadData();
     }
 
@@ -22,13 +25,21 @@ class CalendarHistogram {
         document.getElementById('startDate').addEventListener('change', () => {
             this.timeRange = 'custom';
             document.getElementById('timeRange').value = 'custom';
-            this.loadData();
         });
 
         document.getElementById('endDate').addEventListener('change', () => {
             this.timeRange = 'custom';
             document.getElementById('timeRange').value = 'custom';
-            this.loadData();
+        });
+    }
+
+    initializeCombineControls() {
+        document.getElementById('applyCombine').addEventListener('click', () => {
+            this.applyCombination();
+        });
+
+        document.getElementById('clearCombine').addEventListener('click', () => {
+            this.clearCombination();
         });
     }
 
@@ -93,6 +104,7 @@ class CalendarHistogram {
 
     async loadData() {
         try {
+            this.showLoading(true);
             console.log("Starting to load calendar data...");
             const tokenResponse = await chrome.identity.getAuthToken({ 
                 interactive: true,
@@ -166,9 +178,11 @@ class CalendarHistogram {
 
             console.log("Total events found:", allEvents.length);
             this.processData(allEvents);
+            this.showLoading(false);
         } catch (error) {
             console.error('Error loading calendar data:', error);
             this.showError('Failed to load calendar data. Please try again.');
+            this.showLoading(false);
         }
     }
 
@@ -224,7 +238,135 @@ class CalendarHistogram {
         chartData.sort((a, b) => b.hours - a.hours);
 
         console.log("Processed calendar data:", chartData);
-        this.updateChart(chartData);
+        this.rawCalendarData = chartData;
+        this.updateCategoryCheckboxes(chartData);
+        this.updateChart(this.applyCombinationsToData(chartData));
+    }
+
+    updateCategoryCheckboxes(chartData) {
+        const checkboxContainer = document.getElementById('categoryCheckboxes');
+        checkboxContainer.innerHTML = '';
+
+        chartData.forEach(data => {
+            const div = document.createElement('div');
+            div.className = 'category-checkbox';
+            
+            const checkbox = document.createElement('input');
+            checkbox.type = 'checkbox';
+            checkbox.id = `cat-${data.calendarId}`;
+            checkbox.value = data.calendarId;
+            
+            const label = document.createElement('label');
+            label.htmlFor = `cat-${data.calendarId}`;
+            label.textContent = `${data.calendarId} (${data.hours.toFixed(1)}h)`;
+            
+            div.appendChild(checkbox);
+            div.appendChild(label);
+            checkboxContainer.appendChild(div);
+        });
+
+        // Show the combine section if there's data
+        if (chartData.length > 0) {
+            document.getElementById('combineSection').style.display = 'block';
+        }
+    }
+
+    applyCombination() {
+        const selectedCalendars = [];
+        const checkboxes = document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]:checked');
+        
+        checkboxes.forEach(cb => {
+            selectedCalendars.push(cb.value);
+        });
+
+        if (selectedCalendars.length < 2) {
+            alert('Please select at least 2 calendars to combine');
+            return;
+        }
+
+        const combinedName = document.getElementById('combinedCategoryName').value.trim();
+        if (!combinedName) {
+            alert('Please enter a name for the combined category');
+            return;
+        }
+
+        // Add the combination
+        this.combinedCategories.push({
+            name: combinedName,
+            calendars: selectedCalendars
+        });
+
+        // Clear the form
+        checkboxes.forEach(cb => cb.checked = false);
+        document.getElementById('combinedCategoryName').value = '';
+
+        // Update the chart
+        this.updateChart(this.applyCombinationsToData(this.rawCalendarData));
+    }
+
+    clearCombination() {
+        this.combinedCategories = [];
+        document.querySelectorAll('#categoryCheckboxes input[type="checkbox"]').forEach(cb => {
+            cb.checked = false;
+        });
+        document.getElementById('combinedCategoryName').value = '';
+        
+        // Refresh the chart with original data
+        if (this.rawCalendarData) {
+            this.updateChart(this.rawCalendarData);
+        }
+    }
+
+    applyCombinationsToData(chartData) {
+        if (this.combinedCategories.length === 0) {
+            return chartData;
+        }
+
+        const result = [];
+        const combinedCalendarIds = new Set();
+
+        // Process each combination
+        this.combinedCategories.forEach(combination => {
+            const combinedData = {
+                calendarId: combination.name,
+                hours: 0,
+                percentage: 0,
+                events: [],
+                isCombined: true
+            };
+
+            combination.calendars.forEach(calId => {
+                combinedCalendarIds.add(calId);
+                const calData = chartData.find(d => d.calendarId === calId);
+                if (calData) {
+                    combinedData.hours += calData.hours;
+                    combinedData.events.push(...calData.events);
+                }
+            });
+
+            // Sort events by start time, newest first
+            combinedData.events.sort((a, b) => new Date(b.start.dateTime) - new Date(a.start.dateTime));
+            
+            result.push(combinedData);
+        });
+
+        // Add non-combined calendars
+        chartData.forEach(data => {
+            if (!combinedCalendarIds.has(data.calendarId)) {
+                result.push(data);
+            }
+        });
+
+        // Recalculate percentages
+        const totalHours = result.reduce((sum, data) => sum + data.hours, 0);
+        result.forEach(data => {
+            data.percentage = (data.hours / totalHours * 100).toFixed(1);
+        });
+
+        // Sort by hours (descending)
+        result.sort((a, b) => b.hours - a.hours);
+
+        return result;
     }
 
     updateChart(chartData) {
@@ -261,9 +403,9 @@ class CalendarHistogram {
                 datasets: [{
                     label: 'Hours',
                     data: chartData.map(d => d.hours),
-                    backgroundColor: chartData.map(() => this.getRandomColor()),
-                    borderColor: chartData.map(() => this.getRandomColor()),
-                    borderWidth: 1
+                    backgroundColor: chartData.map(d => d.isCombined ? '#FF6B6B' : this.getRandomColor()),
+                    borderColor: chartData.map(d => d.isCombined ? '#CC5555' : '#999'),
+                    borderWidth: chartData.map(d => d.isCombined ? 2 : 1)
                 }]
             },
             options: {
@@ -294,10 +436,11 @@ class CalendarHistogram {
                         callbacks: {
                             title: function(context) {
                                 const data = chartData[context[0].dataIndex];
-                                return [
-                                    data.calendarId,
+                                const title = [
+                                    data.calendarId + (data.isCombined ? ' (Combined)' : ''),
                                     `Total: ${data.hours.toFixed(1)} hours (${data.percentage}%)`
                                 ];
+                                return title;
                             },
                             label: function(context) {
                                 const data = chartData[context.dataIndex];
@@ -330,7 +473,8 @@ class CalendarHistogram {
         const tableBody = document.getElementById('eventTableBody');
 
         // Update title
-        tableTitle.textContent = `${calendarData.calendarId} - ${calendarData.hours.toFixed(1)} hours (${calendarData.percentage}%)`;
+        const combinedLabel = calendarData.isCombined ? ' (Combined Category)' : '';
+        tableTitle.textContent = `${calendarData.calendarId}${combinedLabel} - ${calendarData.hours.toFixed(1)} hours (${calendarData.percentage}%)`;
 
         // Clear existing rows
         tableBody.innerHTML = '';
@@ -369,6 +513,11 @@ class CalendarHistogram {
         errorDiv.className = 'error';
         errorDiv.textContent = message;
         container.appendChild(errorDiv);
+    }
+
+    showLoading(show) {
+        const spinner = document.getElementById('loadingSpinner');
+        spinner.style.display = show ? 'flex' : 'none';
     }
 }
 

@@ -8,6 +8,10 @@
 <body>
     <div class="container">
         <h1>Calendar Analysis</h1>
+        <div id="loadingSpinner" class="loading-spinner" style="display: none;">
+            <div class="spinner"></div>
+            <p>Loading calendar data...</p>
+        </div>
         <div class="controls">
             <div class="date-controls">
                 <div class="date-input">
@@ -27,6 +31,15 @@
                     <option value="month">This Month</option>
                 </select>
                 <button id="refresh">Refresh</button>
+            </div>
+        </div>
+        <div id="combineSection" class="combine-section" style="display: none;">
+            <h3>Combine Categories</h3>
+            <div id="categoryCheckboxes" class="category-checkboxes"></div>
+            <div class="combine-controls">
+                <input type="text" id="combinedCategoryName" placeholder="Enter combined category name">
+                <button id="applyCombine">Apply Combination</button>
+                <button id="clearCombine">Clear</button>
             </div>
         </div>
         <div class="chart-container">
