@@ -6,23 +6,24 @@ A Chrome extension that analyzes time spent across all your Google Calendar cate
 
 1. Clone the repository
 2. Copy `config.example.js` to `config.js`
-3. Get your OAuth 2.0 Client ID from the [Google Cloud Console](https://console.cloud.google.com):
+3. Load the extension in Chrome:
+   - Go to `chrome://extensions`
+   - Enable "Developer mode"
+   - Click "Load unpacked"
+   - Select the extension directory
+4. Get your OAuth 2.0 Client ID from the [Google Cloud Console](https://console.cloud.google.com):
    - Create a new project or select an existing one
    - Enable the Google Calendar API
    - Go to "APIs & Services" > "Credentials"
    - Create an OAuth 2.0 Client ID
    - Set the application type to "Chrome Extension"
-   - Add your extension ID to the authorized JavaScript origins
-4. Add your Client ID to `config.js`
-5. Generate the manifest file if not present:
+   - For the item id, this is the ID from the `chrome://extensions` page
+5. Add your Client ID to `config.js`
+6. Generate the manifest file if not present:
    ```bash
    node build.js
    ```
-6. Load the extension in Chrome:
-   - Go to `chrome://extensions`
-   - Enable "Developer mode"
-   - Click "Load unpacked"
-   - Select the extension directory
+
 
 ## Usage
 
