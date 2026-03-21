@@ -142,78 +142,23 @@ class CalendarHistogram {
         try {
             this.showLoading(true);
             console.log("Starting to load calendar data...");
-            const tokenResponse = await chrome.identity.getAuthToken({ 
-                interactive: true,
-                scopes: ['https://www.googleapis.com/auth/calendar.readonly']
-            });
-
-            console.log("Auth token response:", tokenResponse);
-            if (!tokenResponse || !tokenResponse.token) {
-                throw new Error('No auth token available');
-            }
-
-            const token = tokenResponse.token;
-            console.log("Auth token received:", token ? "Yes" : "No");
 
             // Get dates from date pickers (local time)
             const startDate = this.getLocalDateFromInput('startDate');
             const endDate = this.getLocalDateFromInput('endDate', true);
 
-            console.log("Time range:", {
+            console.log("Histogram time range:", {
                 start: startDate.toISOString(),
-                end: endDate.toISOString()
+                end: endDate.toISOString(),
+                startLocal: startDate.toLocaleString(),
+                endLocal: endDate.toLocaleString()
             });
 
-            // First, get list of calendars
-            const calendarsResponse = await fetch(
-                'https://www.googleapis.com/calendar/v3/users/me/calendarList',
-                {
-                    headers: {
-                        'Authorization': `Bearer ${token}`,
-                        'Accept': 'application/json'
-                    }
-                }
-            );
-
-            if (!calendarsResponse.ok) {
-                throw new Error('Failed to fetch calendar list');
-            }
-
-            const calendarsData = await calendarsResponse.json();
-            console.log("Calendars found:", calendarsData.items.length);
-
-            // Fetch events from each calendar
-            const allEvents = [];
-            for (const calendar of calendarsData.items) {
-                const response = await fetch(
-                    `https://www.googleapis.com/calendar/v3/calendars/${encodeURIComponent(calendar.id)}/events?` +
-                    `timeMin=${startDate.toISOString()}&` +
-                    `timeMax=${endDate.toISOString()}&` +
-                    `singleEvents=true&` +
-                    `orderBy=startTime`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`,
-                            'Accept': 'application/json'
-                        }
-                    }
-                );
-
-                if (response.ok) {
-                    const data = await response.json();
-                    // Add calendar info to each event
-                    data.items.forEach(event => {
-                        event.calendarId = calendar.id;
-                        event.calendarName = calendar.summary;
-                    });
-                    allEvents.push(...data.items);
-                } else {
-                    console.warn(`Failed to fetch events for calendar ${calendar.summary}`);
-                }
-            }
-
+            // Use shared service to fetch events
+            const allEvents = await CalendarDataService.fetchCalendarEvents(startDate, endDate);
             console.log("Total events found:", allEvents.length);
-            this.processData(allEvents);
+            
+            this.processData(allEvents, startDate, endDate);
             this.showLoading(false);
         } catch (error) {
             console.error('Error loading calendar data:', error);
@@ -222,42 +167,11 @@ class CalendarHistogram {
         }
     }
 
-    processData(events) {
+    processData(events, startDate = null, endDate = null) {
         console.log("Processing events:", events?.length || 0);
-        const calendarData = {};
-
-        // Filter out all-day events
-        const timedEvents = events.filter(event => {
-            if (!event.start || !event.end) {
-                console.log("Skipping event with missing start/end:", event);
-                return false;
-            }
-            // Check if it's an all-day event (has date but no dateTime)
-            return event.start.dateTime !== undefined;
-        });
-
-        console.log("Filtered out all-day events. Processing", timedEvents.length, "timed events");
-
-        // First pass: calculate total hours for each calendar
-        timedEvents.forEach(event => {
-            const start = new Date(event.start.dateTime);
-            const end = new Date(event.end.dateTime);
-            const calendarId = event.calendarName || event.calendarId || 'Unknown';
-            
-            if (!calendarData[calendarId]) {
-                calendarData[calendarId] = {
-                    totalHours: 0,
-                    events: []
-                };
-            }
-
-            const duration = (end - start) / (1000 * 60 * 60); // Convert to hours
-            calendarData[calendarId].totalHours += duration;
-            calendarData[calendarId].events.push({
-                ...event,
-                duration: duration
-            });
-        });
+        
+        // Use shared service to process calendar data with date clipping
+        const calendarData = CalendarDataService.processCalendarData(events, startDate, endDate);
 
         // Calculate total hours across all calendars
         const totalHours = Object.values(calendarData).reduce((sum, data) => sum + data.totalHours, 0);

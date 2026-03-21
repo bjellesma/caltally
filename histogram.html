@@ -6,6 +6,8 @@
     <script src="lib/chart.umd.js"></script>
 </head>
 <body>
+    <div class="app-container">
+        <div class="main-content">
     <div class="container">
         <h1>Calendar Analysis</h1>
         <div id="loadingSpinner" class="loading-spinner" style="display: none;">
@@ -63,6 +65,21 @@
             </table>
         </div>
     </div>
+        </div>
+        <div class="sidebar">
+            <h2>Category Averages</h2>
+            <div class="sidebar-controls">
+                <label for="weeksBack">Past weeks:</label>
+                <input type="number" id="weeksBack" min="1" max="52" value="4">
+                <button id="calculateAverages">Calculate</button>
+            </div>
+            <div id="averagesContainer" class="averages-container">
+                <p class="empty-message">Click Calculate to view category averages</p>
+            </div>
+        </div>
+    </div>
+    <script src="calendar-data.js"></script>
     <script src="histogram.js"></script>
+    <script src="sidebar.js"></script>
 </body>
 </html> 
