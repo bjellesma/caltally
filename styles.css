@@ -13,8 +13,21 @@
 
 .date-controls {
     display: flex;
-    gap: 20px;
+    gap: 15px;
     align-items: center;
+}
+
+.nav-button {
+    padding: 8px 16px;
+    background: #f8f9fa;
+    color: #333;
+    border: 1px solid #ddd;
+    white-space: nowrap;
+}
+
+.nav-button:hover {
+    background: #e9ecef;
+    color: #333;
 }
 
 .date-input {

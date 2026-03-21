@@ -31,6 +31,14 @@ class CalendarHistogram {
             this.timeRange = 'custom';
             document.getElementById('timeRange').value = 'custom';
         });
+
+        document.getElementById('prevWeek').addEventListener('click', () => {
+            this.shiftDates(-7);
+        });
+
+        document.getElementById('nextWeek').addEventListener('click', () => {
+            this.shiftDates(7);
+        });
     }
 
     initializeCombineControls() {
@@ -48,9 +56,18 @@ class CalendarHistogram {
         const startDate = document.getElementById('startDate');
         const endDate = document.getElementById('endDate');
 
-        // Set default dates to today
-        startDate.value = today.toISOString().split('T')[0];
-        endDate.value = today.toISOString().split('T')[0];
+        // Set default dates to current week (Monday to Sunday)
+        const dayOfWeek = today.getDay();
+        const daysFromMonday = (dayOfWeek + 6) % 7; // 0 for Monday, 1 for Tuesday, etc.
+        
+        const monday = new Date(today);
+        monday.setDate(today.getDate() - daysFromMonday);
+        
+        const sunday = new Date(monday);
+        sunday.setDate(monday.getDate() + 6);
+        
+        startDate.value = monday.toISOString().split('T')[0];
+        endDate.value = sunday.toISOString().split('T')[0];
 
         // Set min/max dates
         startDate.max = endDate.value;
@@ -89,6 +106,25 @@ class CalendarHistogram {
                 endDate.value = monthEnd.toISOString().split('T')[0];
                 break;
         }
+    }
+
+    shiftDates(days) {
+        const startDateInput = document.getElementById('startDate');
+        const endDateInput = document.getElementById('endDate');
+        
+        const currentStart = this.getLocalDateFromInput('startDate');
+        const currentEnd = this.getLocalDateFromInput('endDate');
+        
+        currentStart.setDate(currentStart.getDate() + days);
+        currentEnd.setDate(currentEnd.getDate() + days);
+        
+        startDateInput.value = currentStart.toISOString().split('T')[0];
+        endDateInput.value = currentEnd.toISOString().split('T')[0];
+        
+        this.timeRange = 'custom';
+        document.getElementById('timeRange').value = 'custom';
+        
+        this.loadData();
     }
 
     // Helper to get local date from input value
